@@ -83,7 +83,32 @@ print(f"\n전체 줄 수: {total_lines} / 건너뛴 줄 수: {skipped} / 파싱 
 # 🏁 개수의 총합이 (전체 줄 수 - 건너뛴 줄 수)와 일치하면 성공!
 
 # TODO: AI에게 받은 코드를 검증 후 여기에 붙여넣기
+# ---------- 단계 2. 상태코드별 요청 수 집계 및 정렬 ----------
+status_counts = {}  # {상태코드: 개수} 형태로 카운트할 빈 딕셔너리 생성
 
+# 파싱에 성공한 로그들을 하나씩 순회하며 카운팅
+for entry in entries:
+    status = entry["status"]
+    status_counts[status] = status_counts.get(status, 0) + 1
+
+# [출력 1] 상태코드를 오름차순으로 정렬하여 출력
+print("\n=== 상태코드별 요청 수 ===")
+for status in sorted(status_counts.keys()):
+    print(f"{status}: {status_counts[status]}")
+
+
+# 총합 및 수치 일치 검증
+total_status_count = sum(status_counts.values())  # 상태코드별 개수의 총합
+expected_count = total_lines - skipped  # 전체 줄 수 - 건너뛴 줄 수
+
+print("\n=== 검증 결과 ===")
+print(f"- 상태코드 개수 총합 : {total_status_count}")
+print(f"- (전체 - 건너뛴 줄 수): {expected_count}")
+
+if total_status_count == expected_count:
+    print("✅ 두 수치가 일치합니다! (집계 성공)")
+else:
+    print("❌ 수치가 일치하지 않습니다. (확인 필요)")
 
 # # --- 단계 3. 시간대별 집계 ---
 # 요구사항: 시각 문자열에서 시(hour)만 추출해 0~23시 요청 수를 집계해 출력한다
