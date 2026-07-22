@@ -125,7 +125,19 @@ else:
 # 🏁 0~23시 순서대로 정렬되어 출력되면 성공!
 
 # TODO: AI에게 받은 코드를 검증 후 여기에 붙여넣기
+# ---------- 단계 3. 시간대별 요청 수 집계 ----------
+hourly_counts = {}
+for entry in entries:
+    # 딕셔너리의 "time" 키에서 시각 문자열을 가져옵니다.
+    time_str = entry["time"]
+    # 콜론(':')으로 구분했을 때 두 번째 항목(인덱스 1)이 '시간'입니다.
+    hour = time_str.split(":")[1]
+    # 카운팅
+    hourly_counts[hour] = hourly_counts.get(hour, 0) + 1
 
+print("\n=== 시간대별 요청 수 ===")
+for hour in sorted(hourly_counts.keys()):
+    print(f"{hour}시: {hourly_counts[hour]}")
 
 # --- 단계 4. 에러 URL TOP 5 ---
 # 요구사항
