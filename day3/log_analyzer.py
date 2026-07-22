@@ -157,7 +157,23 @@ for hour in sorted(hourly_counts.keys()):
 #   top_error_urls = [list(t) for t in top5]   # [[URL, 횟수], ...] 형태
 
 # TODO: AI에게 받은 코드를 검증 후 여기에 붙여넣기
+# ---------- 단계 4. 400 이상 에러 URL TOP 5 집계 ----------
+error_counts = {}
 
+for entry in entries:
+    # 상태코드가 400 이상인 요청만 선별 (4xx 클라이언트 에러, 5xx 서버 에러)
+    if entry["status"] >= 400:
+        url = entry["url"]
+        # 딕셔너리 카운팅 패턴
+        error_counts[url] = error_counts.get(url, 0) + 1
+
+# 횟수(cnt) 기준으로 내림차순 정렬 후 상위 5개 슬라이싱
+top5 = sorted(error_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+
+# [출력] 에러 최다 URL TOP 5
+print("\n=== 에러 최다 URL TOP 5 ===")
+for rank, (url, cnt) in enumerate(top5, start=1):
+    print(f"{rank}위: {url} ({cnt}회)")
 
 # --- 마무리. 결과를 results.json으로 저장 ---
 # 단계 4까지 완성한 뒤, 아래 주석을 해제하세요.
