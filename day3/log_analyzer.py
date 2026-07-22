@@ -175,20 +175,21 @@ print("\n=== 에러 최다 URL TOP 5 ===")
 for rank, (url, cnt) in enumerate(top5, start=1):
     print(f"{rank}위: {url} ({cnt}회)")
 
+top_error_urls = [list(t) for t in top5]   # [[URL, 횟수], ...] 형태
 # --- 마무리. 결과를 results.json으로 저장 ---
 # 단계 4까지 완성한 뒤, 아래 주석을 해제하세요.
 # ★ 키 이름(status_counts / hourly_counts / top_error_urls)은
 #   한 글자도 바꾸지 마세요. 내일 대시보드와 연결되는 이름입니다.
 
-# import json
-#
-# results = {
-#     "status_counts": status_counts,
-#     "hourly_counts": hourly_counts,
-#     "top_error_urls": top_error_urls
-# }
-#
-# with open("results.json", "w", encoding="utf-8") as f:
-#     json.dump(results, f, ensure_ascii=False, indent=2)
-#
-# print("results.json 저장 완료")
+import json
+
+results = {
+    "status_counts": status_counts,
+    "hourly_counts": hourly_counts,
+    "top_error_urls": top_error_urls
+}
+
+with open("results.json", "w", encoding="utf-8") as f:
+    json.dump(results, f, ensure_ascii=False, indent=2)
+
+print("results.json 저장 완료")
