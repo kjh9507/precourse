@@ -24,62 +24,53 @@
 # 🏁 처음 5줄의 파싱 결과와 건너뛴 줄 수가 출력되면 성공!
 
 # TODO: AI에게 받은 코드를 검증 후 여기에 붙여넣기
-import re
+# -*- coding: utf-8 -*-
+# =====================================================
+# [체크포인트] 3일차 단계 1까지의 완성 코드
+# 막혔을 때: 이 파일 내용을 log_analyzer.py에 통째로 붙여넣고
+#            다음 단계부터 이어서 진행하세요.
+# =====================================================
 
-# 1. access.log 표준 포맷을 분석하기 위한 정규표현식 Pattern을 작성합니다.
-# [IP] [시각 문자열] [HTTP 메서드] [URL] [상태코드]
-log_pattern = re.compile(
-    r'^(?P<ip>\S+)\s+'  # IP 주소 (공백이 아닌 문자)
-    r'\S+\s+\S+\s+'  # 사용 안 하는 정보 (client identity, userid 등)
-    r'\[(?P<time>[^\]]+)\]\s+'  # 시각 문자열 ([ ] 감싸진 부분)
-    r'"(?P<method>[A-Z]+)\s+'  # HTTP 메서드 (GET, POST 등)
-    r'(?P<url>\S+)\s+'  # URL 주소
-    r'HTTP/[0-9.]+"\s+'  # HTTP 버전 정보
-    r'(?P<status>\d+)'  # 상태 코드 (숫자)
-)
+# ---------- 단계 1. 파싱 ----------
+def parse_line(line):
+    """로그 한 줄에서 IP, 시각, 메서드, URL, 상태코드를 추출한다.
+    형식에 맞지 않는 줄은 None을 반환한다."""
+    line = line.strip()                 # 앞뒤 공백 / 줄바꿈 제거
+    if line == "":                      # 빈 줄이므로 None 반환
+        return None
+    parts = line.split()                # 공백 기준으로 나눠서 parts라는 리스트에 저장
+    if len(parts) < 9:                  # parts의 길이가 모자라면 깨진 줄 
+        return None                     # 잘못된 결과이므로 None 반환
+    try:
+        status = int(parts[8])          # 상태코드를 정수로 변환
+    except ValueError:                  # 숫자가 아니면 깨진 줄
+        return None                     # 잘못된 결과이므로 None 반환
+    return {
+        "ip": parts[0],
+        "time": parts[3].lstrip("[") + " " + parts[4].rstrip("]"),
+        "method": parts[5].lstrip('"'),
+        "url": parts[6],
+        "status": status,
+    }
 
-parsed_logs = []  # 파싱된 데이터를 담을 리스트
-total_lines = 0  # 전체 줄 수를 세는 카운터
+entries = []          # 파싱에 성공한 딕셔너리들을 담는 리스트
+skipped = 0           # 건너뛴(깨진) 줄 수
+total_lines = 0       # 파일의 전체 줄 수
 
-# 2. access.log 파일을 한 줄씩 읽어옵니다.
-with open('access.log', 'r', encoding='utf-8') as file:
-    for line in file:
-        total_lines += 1  # 줄 수 카운트 증가
-        line = line.strip()
+with open("access.log", "r", encoding="utf-8") as f:
+    for raw in f:
+        total_lines += 1
+        entry = parse_line(raw)
+        if entry is None:
+            skipped += 1
+        else:
+            entries.append(entry)
 
-        # 정규표현식 매칭 시도
-        match = log_pattern.match(line)
-        if match:
-            # 매칭 성공 시 데이터 추출
-            data = match.groupdict()
-
-            # 상태코드는 요구사항에 따라 정수(int)형으로 변환합니다.
-            parsed_data = {
-                'ip': data['ip'],
-                'time': data['time'],
-                'method': data['method'],
-                'url': data['url'],
-                'status': int(data['status']),
-            }
-            parsed_logs.append(parsed_data)
-
-# -------------------------------------------------------------
-# [단계 1] 확인을 위해 처음 5줄의 파싱 결과를 출력합니다.
-# -------------------------------------------------------------
 print("=== 처음 5줄 파싱 결과 ===")
-for i, log in enumerate(parsed_logs[:5], start=1):
-    print(f"[{i}번째 줄]")
-    print(f" - IP        : {log['ip']}")
-    print(f" - 시각      : {log['time']}")
-    print(f" - 메서드    : {log['method']}")
-    print(f" - URL       : {log['url']}")
-    print(f" - 상태코드  : {log['status']} (타입: {type(log['status']).__name__})")
-    print("-" * 40)
+for e in entries[:5]:
+    print(e)
+print(f"\n전체 줄 수: {total_lines} / 건너뛴 줄 수: {skipped} / 파싱 성공: {len(entries)}")
 
-# -------------------------------------------------------------
-# [단계 2] 마지막에 전체 읽어들인 줄 수를 출력합니다.
-# -------------------------------------------------------------
-print(f"\n총 읽은 파일 줄 수: {total_lines}줄")
 
 # --- 단계 2. 상태코드별 집계 ---
 # 요구사항: 전체 로그의 상태코드별 요청 수를 집계해 출력한다
