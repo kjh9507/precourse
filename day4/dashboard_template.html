@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>서버 로그 분석 대시보드</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 1000px; /* 2열 배치를 고려해 폭을 약간 넓혔습니다 */
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f6fa;
+    }
+    h1 { text-align: center; }
+
+    /* 대시보드 그리드 컨테이너 추가 */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* 카드 2개씩 나란히 배치 */
+      gap: 20px;                             /* 카드 사이 여백 */
+      margin-top: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      /* margin-bottom은 Grid의 gap으로 대체하므로 제거 */
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    /* 상단 요약 숫자 카드 전용 스타일 */
+    .metric-card {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 120px;
+    }
+    .metric-title {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    .metric-value.error {
+      color: #e15759;
+    }
+
+    /* 모바일 환경 대응 (화면이 좁아지면 1열로 변경) */
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>서버 로그 분석 대시보드</h1>
+  <p style="text-align:center;">작성자: __AUTHOR__</p>
+
+  <!-- 모든 카드를 포함하는 그리드 컨테이너 -->
+  <div class="dashboard-grid">
+    
+    <!-- 1행: 숫자 요약 카드 2개 -->
+    <div class="card metric-card">
+      <div class="metric-title">전체 요청 수</div>
+      <div class="metric-value">__TOTAL_COUNT__</div>
+    </div>
+
+    <div class="card metric-card">
+      <div class="metric-title">총 에러 건수</div>
+      <div class="metric-value error">__ERROR_COUNT__</div>
+    </div>
+
+    <!-- 2행: 차트 카드 2개 -->
+    <div class="card">
+      <h2>상태코드별 요청 수</h2>
+      <canvas id="statusChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>시간대별 요청 수</h2>
+      <canvas id="hourlyChart"></canvas>
+    </div>
+
+    <!-- 3행: 차트 카드 2개 -->
+    <div class="card">
+      <h2>에러 최다 URL TOP 5</h2>
+      <canvas id="errorChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>요청 수 TOP 5 IP (의심 IP)</h2>
+      <canvas id="ipChart"></canvas>
+    </div>
+
+  </div>
+
+  <script>
+    // 1. 상태코드별 도넛 차트
+    new Chart(document.getElementById("statusChart"), {
+      type: "doughnut",
+      data: {
+        labels: __STATUS_LABELS__,
+        datasets: [{
+          label: "요청 수",
+          data: __STATUS_DATA__,
+          backgroundColor: [
+            "#4e79a7",
+            "#f28e2b",
+            "#e15759",
+            "#76b7b2",
+            "#59a14f",
+            "#edc948",
+            "#b07aa1",
+            "#ff9da7"
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "bottom"
+          }
+        },
+        cutout: "50%"
+      }
+    });
+
+    // 2. 시간대별 선 차트
+    new Chart(document.getElementById("hourlyChart"), {
+      type: "line",
+      data: {
+        labels: __HOURLY_LABELS__,
+        datasets: [{
+          label: "요청 수",
+          data: __HOURLY_DATA__,
+          borderColor: "#59a14f",
+          fill: false
+        }]
+      }
+    });
+
+    // 3. 에러 URL TOP 5 가로 막대 차트
+    new Chart(document.getElementById("errorChart"), {
+      type: "bar",
+      data: {
+        labels: __ERROR_LABELS__,
+        datasets: [{
+          label: "에러 발생 수",
+          data: __ERROR_DATA__,
+          backgroundColor: "#e15759"
+        }]
+      },
+      options: { indexAxis: "y" }
+    });
+
+    // 4. 요청 수 TOP 5 IP 가로 막대 차트
+    new Chart(document.getElementById("ipChart"), {
+      type: "bar",
+      data: {
+        labels: __IP_LABELS__,
+        datasets: [{
+          label: "요청 수",
+          data: __IP_DATA__,
+          backgroundColor: "#f28e2b"
+        }]
+      },
+      options: { indexAxis: "y" }
+    });
+  </script>
+</body>
+</html>

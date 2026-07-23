@@ -176,6 +176,7 @@ for rank, (url, cnt) in enumerate(top5, start=1):
     print(f"{rank}위: {url} ({cnt}회)")
 
 top_error_urls = [list(t) for t in top5]   # [[URL, 횟수], ...] 형태
+
 # --- 마무리. 결과를 results.json으로 저장 ---
 # 단계 4까지 완성한 뒤, 아래 주석을 해제하세요.
 # ★ 키 이름(status_counts / hourly_counts / top_error_urls)은
@@ -189,48 +190,15 @@ results = {
     "top_error_urls": top_error_urls
 }
 
+# 의심 IP 탐지: 요청 수 TOP 5 IP
+ip_counts = {}
+for entry in entries:
+    ip_counts[entry["ip"]] = ip_counts.get(entry["ip"], 0) + 1
+top_ips = sorted(ip_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+
+results["top_ips"] = [list(t) for t in top_ips]   # results 딕셔너리에 키 추가
+
 with open("results.json", "w", encoding="utf-8") as f:
     json.dump(results, f, ensure_ascii=False, indent=2)
 
 print("results.json 저장 완료")
-
-# ---------- 단계 5. 의심 IP 탐지 (상위 5개 IP) ----------
-ip_counts = {}
-for entry in entries:
-    ip = entry["ip"]
-    ip_counts[ip] = ip_counts.get(ip, 0) + 1
-
-top5_ips = sorted(ip_counts.items(), key=lambda x: x[1], reverse=True)[:5]
-
-print("\n=== 의심 IP 탐지 (최다 요청 TOP 5) ===")
-for rank, (ip, cnt) in enumerate(top5_ips, start=1):
-    print(f"{rank}위: {ip} ({cnt}회)")
-
-
-# ---------- 단계 6. 에러율(400 이상) 계산 ----------
-total_requests = len(entries)
-error_requests = sum(1 for entry in entries if entry["status"] >= 400)
-
-if total_requests > 0:
-    error_rate = (error_requests / total_requests) * 100
-else:
-    error_rate = 0.0
-
-print("\n=== 에러율 분석 ===")
-print(
-    f"전체 요청: {total_requests}건 / 에러: {error_requests}건 / 에러율:"
-    f" {error_rate:.2f}%"
-)
-
-
-# ---------- 단계 7. HTTP 메서드별 요청 수 집계 ----------
-method_counts = {}
-for entry in entries:
-    method = entry["method"]
-    method_counts[method] = method_counts.get(method, 0) + 1
-
-print("\n=== HTTP 메서드별 요청 수 ===")
-for method, count in sorted(
-    method_counts.items(), key=lambda x: x[1], reverse=True
-):
-    print(f"{method}: {count}건")
