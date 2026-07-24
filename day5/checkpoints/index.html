@@ -14,7 +14,6 @@
       background: #f5f6fa;
     }
     h1 { text-align: center; }
-    
     .card {
       background: white;
       border-radius: 8px;
@@ -22,49 +21,11 @@
       margin-bottom: 24px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
-
-    /* 요약 카드 그리드 레이아웃 */
-    .metrics-container {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .metric-card {
-      flex: 1;
-      margin-bottom: 0; /* metrics-container의 gap 사용 */
-      text-align: center;
-    }
-    .metric-title {
-      font-size: 1rem;
-      color: #666;
-      margin-bottom: 8px;
-    }
-    .metric-value {
-      font-size: 2.2rem;
-      font-weight: bold;
-      color: #2c3e50;
-    }
-    .metric-value.error {
-      color: #e15759; /* 기존 차트의 에러 색상과 통일 */
-    }
   </style>
 </head>
 <body>
   <h1>서버 로그 분석 대시보드</h1>
-  <p style="text-align:center;">작성자: 김지홍</p>
-  <p>생성시각: 2026-07-23 17:28</p>
-
-  <!-- 상단 요약 카드가 추가된 부분 -->
-  <div class="metrics-container">
-    <div class="card metric-card">
-      <div class="metric-title">전체 요청 수</div>
-      <div class="metric-value">2,020</div>
-    </div>
-    <div class="card metric-card">
-      <div class="metric-title">총 에러 건수</div>
-      <div class="metric-value error">92</div>
-    </div>
-  </div>
+  <p style="text-align:center;">작성자: 본인 이름</p>
 
   <div class="card">
     <h2>상태코드별 요청 수</h2>
@@ -87,34 +48,16 @@
   </div>
 
   <script>
-    // 1. 상태코드별 도넛 차트
+    // 1. 상태코드별 막대 차트
     new Chart(document.getElementById("statusChart"), {
-      type: "doughnut",
+      type: "bar",
       data: {
-        labels: ["200", "301", "403", "404", "500", "502", "503"],
+        labels: ["200", "301", "500", "404", "403", "502", "503"],
         datasets: [{
           label: "요청 수",
-          data: [1879, 49, 14, 45, 13, 11, 9],
-          backgroundColor: [
-            "#4e79a7",
-            "#f28e2b",
-            "#e15759",
-            "#76b7b2",
-            "#59a14f",
-            "#edc948",
-            "#b07aa1",
-            "#ff9da7"
-          ]
+          data: [1879, 49, 13, 45, 14, 11, 9],
+          backgroundColor: "#4e79a7"
         }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: "bottom"
-          }
-        },
-        cutout: "50%"   // 도넛 가운데 구멍 크기
       }
     });
 
@@ -146,7 +89,7 @@
       options: { indexAxis: "y" }
     });
 
-    // 4. 요청 수 TOP 5 IP 가로 막대 차트
+    // 4. 의심 IP TOP 5 가로 막대 차트
     new Chart(document.getElementById("ipChart"), {
       type: "bar",
       data: {
