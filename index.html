@@ -46,7 +46,7 @@
 
     /* 경고 배지 — 표시 여부는 파이썬이 결정해 치환 */
     #warnBadge {
-      display: block;
+      display: __WARN_DISPLAY__;
       text-align: center;
       background: #e15759;
       color: white;
@@ -83,15 +83,15 @@
   </style>
 </head>
 <body>
-  <h1>서버 로그 분석 대시보드</h1>
-  <p class="author">작성자: 김지홍</p>
-  <p class="generated">생성 시각: 2026-07-23 17:41</p>
+  <h1>서버 로그 분석 DASHBOARD</h1>
+  <p class="author">작성자 : 김지홍</p>
+  <p class="generated">생성 시각 : 2026-07-24 16:33</p>
 
   <div class="toolbar">
     <button id="darkToggle">다크 모드</button>
   </div>
 
-  <div id="warnBadge">경고: 에러율이 4.55%로 기준치(4.0%)를 초과했습니다</div>
+  <div id="warnBadge">__WARN_TEXT__</div>
 
   <div class="summary">
     <div class="card">
@@ -104,7 +104,7 @@
     </div>
     <div class="card">
       <p class="label">에러율</p>
-      <p class="num">4.55%</p>
+      <p class="num">__ERROR_RATE__%</p>
     </div>
   </div>
 
